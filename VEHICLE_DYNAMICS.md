@@ -61,7 +61,7 @@ Nose-down ($\theta > 0$) means pointing downhill, so gravity accelerates the veh
 
 The unsprung masses translate horizontally with the body, so the horizontal equations use the total mass $m_{\text{tot}} = m_s + \sum_i m_{u,i}$; the heave equation uses the sprung mass $m_s$ only (the unsprung heave has its own equations, Section 4.3):
 
-$$\dot{u} = \frac{\sum_i F_{x,b,i} - \operatorname{sgn}(u) F_{\text{drag}}}{m_{\text{tot}}} + v r - w q + g \sin\theta$$
+$$\dot{u} = \frac{\sum_i F_{x,b,i} - \mathrm{sgn}(u) F_{\text{drag}}}{m_{\text{tot}}} + v r - w q + g \sin\theta$$
 
 $$\dot{v} = \frac{\sum_i F_{y,b,i}}{m_{\text{tot}}} - u r + w p - g \cos\theta \sin\phi$$
 
@@ -79,7 +79,7 @@ All moments follow from $\mathbf{M} = \mathbf{r} \times \mathbf{F}$ about the CG
 
 $$M_x = w_f \left(F_{\text{susp},\text{FL}} - F_{\text{susp},\text{FR}}\right) + w_r \left(F_{\text{susp},\text{RL}} - F_{\text{susp},\text{RR}}\right) + h_{\text{cg}} \sum_i F_{y,b,i}$$
 
-$$M_y = -a \left(F_{\text{susp},\text{FL}} + F_{\text{susp},\text{FR}}\right) + b \left(F_{\text{susp},\text{RL}} + F_{\text{susp},\text{RR}}\right) - h_{\text{cg}} \sum_i F_{x,b,i} + \underbrace{a F_{\text{aero},f} - b F_{\text{aero},r}}_{M_{y,\text{aero}}} - z_{\text{aero}} \operatorname{sgn}(u) F_{\text{drag}}$$
+$$M_y = -a \left(F_{\text{susp},\text{FL}} + F_{\text{susp},\text{FR}}\right) + b \left(F_{\text{susp},\text{RL}} + F_{\text{susp},\text{RR}}\right) - h_{\text{cg}} \sum_i F_{x,b,i} + \underbrace{a F_{\text{aero},f} - b F_{\text{aero},r}}_{M_{y,\text{aero}}} - z_{\text{aero}} \mathrm{sgn}(u) F_{\text{drag}}$$
 
 $$M_z = a \left(F_{y,b,\text{FL}} + F_{y,b,\text{FR}}\right) - b \left(F_{y,b,\text{RL}} + F_{y,b,\text{RR}}\right) + w_f \left(F_{x,b,\text{FR}} - F_{x,b,\text{FL}}\right) + w_r \left(F_{x,b,\text{RR}} - F_{x,b,\text{RL}}\right)$$
 
@@ -188,11 +188,11 @@ $$F_{\text{downforce}} = \tfrac12 \rho_{\text{air}} C_L A (u^2 + v^2), \quad F_{
 
 **Actuator lag & saturation**: The continuous steering rate is:
 
-$$\dot\delta = \frac{1}{\tau_{\text{steer}}}\left(\operatorname{clamp}(\delta_{\text{cmd}}, -\delta_{\max}, \delta_{\max}) - \delta\right)$$
+$$\dot\delta = \frac{1}{\tau_{\text{steer}}}\left(\mathrm{clamp}(\delta_{\text{cmd}}, -\delta_{\max}, \delta_{\max}) - \delta\right)$$
 
 The exact discrete update for a zero-order hold command saturates the input prior to integration:
 
-$$\delta_{\text{sat}} = \operatorname{clamp}(\delta_{\text{cmd}}, -\delta_{\max}, \delta_{\max}), \qquad \delta_{k+1} = \delta_k + (1 - e^{-\Delta t / \tau_{\text{steer}}})(\delta_{\text{sat}} - \delta_k)$$
+$$\delta_{\text{sat}} = \mathrm{clamp}(\delta_{\text{cmd}}, -\delta_{\max}, \delta_{\max}), \qquad \delta_{k+1} = \delta_k + (1 - e^{-\Delta t / \tau_{\text{steer}}})(\delta_{\text{sat}} - \delta_k)$$
 
 **Ackermann geometry**:
 
@@ -235,7 +235,7 @@ $$\Gamma = \sqrt{\left(\frac{F_{x0}}{\mu_x F_z}\right)^2 + \left(\frac{F_{y0}}{\
 
 ## 8. Wheel Spin Dynamics
 
-$$I_w\dot\omega_i = T_{\text{drive},i} - F_{x,w,i}R_w - \left(T_{\text{brake},i} + T_{\text{rr},i}\right)\operatorname{sgn}(\omega_i), \qquad T_{\text{rr},i} = (c_{\text{rr}0} + c_{\text{rr}1}v_{x,w,i}^2)F_{z,i}R_w$$
+$$I_w\dot\omega_i = T_{\text{drive},i} - F_{x,w,i}R_w - \left(T_{\text{brake},i} + T_{\text{rr},i}\right)\mathrm{sgn}(\omega_i), \qquad T_{\text{rr},i} = (c_{\text{rr}0} + c_{\text{rr}1}v_{x,w,i}^2)F_{z,i}R_w$$
 
 This equation is **integrated continuously for every wheel**. There is no grip/slip regime switching and no algebraic overwrite of $\omega_i$.
 
@@ -246,7 +246,7 @@ $$k_\omega = \lambda\,\max\!\left(0, \frac{\partial F_{x0}}{\partial\kappa}\righ
 
 Resistive torques (brake + rolling resistance) act as Coulomb friction that **cannot reverse the spin direction**:
 
-$$J = \frac{\Delta t\,(T_{\text{brake}} + T_{\text{rr}})}{I_w + \Delta t R_w k_\omega}, \qquad \omega^{n+1} = \begin{cases} 0, & |\omega^{\text{free}}| \le J \ \text{(wheel held / locked)} \\ \omega^{\text{free}} - J\operatorname{sgn}(\omega^{\text{free}}), & \text{otherwise} \end{cases}$$
+$$J = \frac{\Delta t\,(T_{\text{brake}} + T_{\text{rr}})}{I_w + \Delta t R_w k_\omega}, \qquad \omega^{n+1} = \begin{cases} 0, & |\omega^{\text{free}}| \le J \ \text{(wheel held / locked)} \\ \omega^{\text{free}} - J\mathrm{sgn}(\omega^{\text{free}}), & \text{otherwise} \end{cases}$$
 
 The force sent to the chassis is $F_{x,w} = \lambda F_{x0}(\kappa^n) + k_\omega(\omega^{n+1} - \omega^n)$, re-clamped to the friction ellipse.
 
@@ -282,7 +282,7 @@ where $k_{\text{lsd}} = 0.5\,\text{s/rad}$ and $\lambda_{\text{lsd}} = 0.40$. If
 ### 9.3 Traction Control
 The drive torque on each wheel is trimmed when slip ratio exceeds target:
 
-$$T_{\text{drive},i} \leftarrow T_{\text{drive},i}\cdot\operatorname{clamp}\!\left(1 - \frac{|\kappa_i| - \kappa_{\text{tc}}}{\Delta\kappa_{\text{tc}}},\ s_{\min},\ 1\right) \quad \text{if } T_{\text{drive},i}\kappa_i > 0 \text{ and } |\kappa_i| > \kappa_{\text{tc}}$$
+$$T_{\text{drive},i} \leftarrow T_{\text{drive},i}\cdot\mathrm{clamp}\!\left(1 - \frac{|\kappa_i| - \kappa_{\text{tc}}}{\Delta\kappa_{\text{tc}}},\ s_{\min},\ 1\right) \quad \text{if } T_{\text{drive},i}\kappa_i > 0 \text{ and } |\kappa_i| > \kappa_{\text{tc}}$$
 
 with $\kappa_{\text{tc}} = 0.10$, $\Delta\kappa_{\text{tc}} = 0.10$, $s_{\min} = 0.10$.
 
