@@ -1,0 +1,19 @@
+# Generated ROS workspaces and Python caches
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.DS_Store
+*.bak
+*.bak_*
+# Local credentials and recorded runs
+.env
+.env.*
+!.env.example
+*.bag
+*.db3
+*.mcap
+results/

@@ -1,0 +1,14 @@
+# Runtime ROS parameters. Physical constants live in Vehicle14DoFParams.
+# This file is loaded by super_sim.launch.py; launch arguments override it.
+vehicle_14dof_node:
+  ros__parameters:
+    use_gazebo: true
+    update_rate_hz: 100.0
+    car_name: my_car
+    powertrain: EV
+    drivetrain: AWD
+    abs_enabled: true
+    terrain: FLAT
+    spawn_x: 0.0
+    spawn_y: 0.0
+    spawn_yaw: 0.0

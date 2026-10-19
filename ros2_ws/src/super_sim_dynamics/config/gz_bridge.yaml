@@ -1,0 +1,42 @@
+# ==========================================================
+# ROS 2 <-> Gazebo Harmonic Sensor and Clock Bridges
+# ==========================================================
+- ros_topic_name: "/clock"
+  gz_topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/my_car/lidar/points"
+  gz_topic_name: "/my_car/lidar/points/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "gz.msgs.PointCloudPacked"
+  direction: GZ_TO_ROS
+  lazy: true
+
+- ros_topic_name: "/my_car/camera/image"
+  gz_topic_name: "/my_car/camera/image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+  lazy: true
+
+- ros_topic_name: "/my_car/camera/camera_info"
+  gz_topic_name: "/my_car/camera/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+  lazy: true
+
+- ros_topic_name: "/my_car/camera/depth_image"
+  gz_topic_name: "/my_car/camera/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+  lazy: true
+
+- ros_topic_name: "/my_car/imu"
+  gz_topic_name: "/my_car/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS

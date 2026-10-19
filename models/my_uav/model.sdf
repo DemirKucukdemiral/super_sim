@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<sdf version="1.8">
+
+  <model name="my_uav">
+
+    <!-- Keep it static initially -->
+    <static>true</static>
+
+    <link name="base_link">
+
+      <visual name="uav_visual">
+        <pose>0 0 0 1.5708 0 0</pose>
+        <geometry>
+
+          <mesh>
+            <uri>meshes/UAV_project_model.obj</uri>
+
+            <scale>
+              1 1 1
+            </scale>
+
+          </mesh>
+
+        </geometry>
+
+      </visual>
+
+    </link>
+
+  </model>
+
+</sdf>

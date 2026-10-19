@@ -1,0 +1,1840 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+  <world name="car_world">
+
+    <!-- Chase Camera: rigidly locked behind my_car -->
+    <gui fullscreen="0">
+      <camera name="user_camera">
+        <pose>-5.8 0 2.6 0 0.18 0</pose>
+        <track_visual>
+          <name>my_car</name>
+          <static>true</static>
+          <use_model_frame>true</use_model_frame>
+          <xyz>-5.8 0 2.1</xyz>
+          <inherit_yaw>true</inherit_yaw>
+        </track_visual>
+      </camera>
+    </gui>
+
+    <physics name="10ms" type="ignored">
+      <max_step_size>0.010</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <!-- Core Gazebo Plugins -->
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+
+    <gravity>0 0 -9.81</gravity>
+    
+    <scene>
+      <ambient>0.6 0.6 0.65 1</ambient>
+      <background>0.65 0.78 0.92 1</background>
+      <grid>false</grid>
+    </scene>
+
+    <!-- Sun Light -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 80 0 0 0</pose>
+      <diffuse>0.95 0.95 0.90 1</diffuse>
+      <specular>0.3 0.3 0.3 1</specular>
+      <direction>-0.45 0.25 -0.85</direction>
+    </light>
+
+    <!-- Ground Plane (Covers entire region so car can never fall through void) -->
+    <model name="ground_plane">
+      <static>true</static>
+      <pose>0 0 0.0 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>3000 3000</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.2</mu>
+                <mu2>1.2</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>1000 1000</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.35 0.38 0.34 1</ambient>
+            <diffuse>0.42 0.46 0.40 1</diffuse>
+            <specular>0.02 0.02 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <!-- ============================================== -->
+    <!-- CITY ROAD NETWORK (Avenues, Streets, Sidewalks)-->
+    <!-- ============================================== -->
+    <model name="city_roads">
+      <static>true</static>
+      <link name="link">
+        <!-- central_ave -->
+        <visual name="road_ew_0">
+          <pose>50.0 0.0 0.005 0 0 0</pose>
+          <geometry><box><size>440.0 14.0 0.008</size></box></geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.24 0.24 0.26 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+          </material>
+        </visual>
+        <!-- Center dashed markings -->
+        <visual name="road_ew_mark_0">
+          <pose>50.0 0.0 0.012 0 0 0</pose>
+          <geometry><box><size>440.0 0.20 0.004</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+        <!-- north_ave -->
+        <visual name="road_ew_1">
+          <pose>50.0 60.0 0.005 0 0 0</pose>
+          <geometry><box><size>440.0 12.0 0.008</size></box></geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.24 0.24 0.26 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+          </material>
+        </visual>
+        <!-- Center dashed markings -->
+        <visual name="road_ew_mark_1">
+          <pose>50.0 60.0 0.012 0 0 0</pose>
+          <geometry><box><size>440.0 0.20 0.004</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+        <!-- south_ave -->
+        <visual name="road_ew_2">
+          <pose>50.0 -60.0 0.005 0 0 0</pose>
+          <geometry><box><size>440.0 12.0 0.008</size></box></geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.24 0.24 0.26 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+          </material>
+        </visual>
+        <!-- Center dashed markings -->
+        <visual name="road_ew_mark_2">
+          <pose>50.0 -60.0 0.012 0 0 0</pose>
+          <geometry><box><size>440.0 0.20 0.004</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+        <!-- far_north_ave -->
+        <visual name="road_ew_3">
+          <pose>50.0 120.0 0.005 0 0 0</pose>
+          <geometry><box><size>440.0 12.0 0.008</size></box></geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.24 0.24 0.26 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+          </material>
+        </visual>
+        <!-- Center dashed markings -->
+        <visual name="road_ew_mark_3">
+          <pose>50.0 120.0 0.012 0 0 0</pose>
+          <geometry><box><size>440.0 0.20 0.004</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+        <!-- far_south_ave -->
+        <visual name="road_ew_4">
+          <pose>50.0 -120.0 0.005 0 0 0</pose>
+          <geometry><box><size>440.0 12.0 0.008</size></box></geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.24 0.24 0.26 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+          </material>
+        </visual>
+        <!-- Center dashed markings -->
+        <visual name="road_ew_mark_4">
+          <pose>50.0 -120.0 0.012 0 0 0</pose>
+          <geometry><box><size>440.0 0.20 0.004</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+        <!-- cross_w2 -->
+        <visual name="road_ns_0">
+          <pose>-110.0 0.0 0.006 0 0 0</pose>
+          <geometry><box><size>12.0 280.0 0.008</size></box></geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.24 0.24 0.26 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+          </material>
+        </visual>
+        <visual name="road_ns_mark_0">
+          <pose>-110.0 0.0 0.013 0 0 0</pose>
+          <geometry><box><size>0.20 280.0 0.004</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+        <!-- cross_w1 -->
+        <visual name="road_ns_1">
+          <pose>-50.0 0.0 0.006 0 0 0</pose>
+          <geometry><box><size>12.0 280.0 0.008</size></box></geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.24 0.24 0.26 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+          </material>
+        </visual>
+        <visual name="road_ns_mark_1">
+          <pose>-50.0 0.0 0.013 0 0 0</pose>
+          <geometry><box><size>0.20 280.0 0.004</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+        <!-- cross_center -->
+        <visual name="road_ns_2">
+          <pose>20.0 0.0 0.006 0 0 0</pose>
+          <geometry><box><size>12.0 280.0 0.008</size></box></geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.24 0.24 0.26 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+          </material>
+        </visual>
+        <visual name="road_ns_mark_2">
+          <pose>20.0 0.0 0.013 0 0 0</pose>
+          <geometry><box><size>0.20 280.0 0.004</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+        <!-- cross_e1 -->
+        <visual name="road_ns_3">
+          <pose>90.0 0.0 0.006 0 0 0</pose>
+          <geometry><box><size>12.0 280.0 0.008</size></box></geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.24 0.24 0.26 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+          </material>
+        </visual>
+        <visual name="road_ns_mark_3">
+          <pose>90.0 0.0 0.013 0 0 0</pose>
+          <geometry><box><size>0.20 280.0 0.004</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+        <!-- cross_e2 -->
+        <visual name="road_ns_4">
+          <pose>160.0 0.0 0.006 0 0 0</pose>
+          <geometry><box><size>12.0 280.0 0.008</size></box></geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.24 0.24 0.26 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+          </material>
+        </visual>
+        <visual name="road_ns_mark_4">
+          <pose>160.0 0.0 0.013 0 0 0</pose>
+          <geometry><box><size>0.20 280.0 0.004</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+        <!-- cross_e3 -->
+        <visual name="road_ns_5">
+          <pose>220.0 0.0 0.006 0 0 0</pose>
+          <geometry><box><size>12.0 280.0 0.008</size></box></geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.24 0.24 0.26 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+          </material>
+        </visual>
+        <visual name="road_ns_mark_5">
+          <pose>220.0 0.0 0.013 0 0 0</pose>
+          <geometry><box><size>0.20 280.0 0.004</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.85 1</ambient>
+            <diffuse>0.95 0.95 0.95 1</diffuse>
+          </material>
+        </visual>
+        <visual name="sidewalk_0_0">
+          <pose>-139.0 -90.0 0.010 0 0 0</pose>
+          <geometry><box><size>42.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_0_1">
+          <pose>-139.0 -30.5 0.010 0 0 0</pose>
+          <geometry><box><size>42.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_0_2">
+          <pose>-139.0 30.5 0.010 0 0 0</pose>
+          <geometry><box><size>42.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_0_3">
+          <pose>-139.0 90.0 0.010 0 0 0</pose>
+          <geometry><box><size>42.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_1_0">
+          <pose>-80.0 -90.0 0.010 0 0 0</pose>
+          <geometry><box><size>44.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_1_1">
+          <pose>-80.0 -30.5 0.010 0 0 0</pose>
+          <geometry><box><size>44.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_1_2">
+          <pose>-80.0 30.5 0.010 0 0 0</pose>
+          <geometry><box><size>44.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_1_3">
+          <pose>-80.0 90.0 0.010 0 0 0</pose>
+          <geometry><box><size>44.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_2_0">
+          <pose>-15.0 -90.0 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_2_1">
+          <pose>-15.0 -30.5 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_2_2">
+          <pose>-15.0 30.5 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_2_3">
+          <pose>-15.0 90.0 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_3_0">
+          <pose>55.0 -90.0 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_3_1">
+          <pose>55.0 -30.5 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_3_2">
+          <pose>55.0 30.5 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_3_3">
+          <pose>55.0 90.0 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_4_0">
+          <pose>125.0 -90.0 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_4_1">
+          <pose>125.0 -30.5 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_4_2">
+          <pose>125.0 30.5 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_4_3">
+          <pose>125.0 90.0 0.010 0 0 0</pose>
+          <geometry><box><size>54.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_5_0">
+          <pose>190.0 -90.0 0.010 0 0 0</pose>
+          <geometry><box><size>44.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_5_1">
+          <pose>190.0 -30.5 0.010 0 0 0</pose>
+          <geometry><box><size>44.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_5_2">
+          <pose>190.0 30.5 0.010 0 0 0</pose>
+          <geometry><box><size>44.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_5_3">
+          <pose>190.0 90.0 0.010 0 0 0</pose>
+          <geometry><box><size>44.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_6_0">
+          <pose>244.0 -90.0 0.010 0 0 0</pose>
+          <geometry><box><size>32.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_6_1">
+          <pose>244.0 -30.5 0.010 0 0 0</pose>
+          <geometry><box><size>32.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_6_2">
+          <pose>244.0 30.5 0.010 0 0 0</pose>
+          <geometry><box><size>32.0 43.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+        <visual name="sidewalk_6_3">
+          <pose>244.0 90.0 0.010 0 0 0</pose>
+          <geometry><box><size>32.0 44.0 0.015</size></box></geometry>
+          <material>
+            <ambient>0.50 0.50 0.52 1</ambient>
+            <diffuse>0.62 0.62 0.65 1</diffuse>
+            <specular>0.04 0.04 0.04 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <!-- ============================================== -->
+    <!-- CITY BUILDINGS (WITH SOLID PHYSICAL COLLISIONS)-->
+    <!-- ============================================== -->
+    <model name="city_buildings">
+      <static>true</static>
+      <link name="link">
+        <!-- bldg_0_White_Plaza (H=33.7m) -->
+        <collision name="bldg_0_White_Plaza_col">
+          <pose>-139.00 -90.00 16.83 0 0 0</pose>
+          <geometry><box><size>38.00 40.00 33.67</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_0_White_Plaza_vis">
+          <pose>-139.00 -90.00 16.83 0 0 0</pose>
+          <geometry><box><size>38.00 40.00 33.67</size></box></geometry>
+          <material>
+            <ambient>0.680 0.680 0.700 1</ambient>
+            <diffuse>0.860 0.860 0.880 1</diffuse>
+            <specular>0.150 0.150 0.150 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_0_White_Plaza_roof">
+          <pose>-139.00 -90.00 35.42 0 0 0</pose>
+          <geometry><box><size>20.90 22.00 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_1_White_Plaza (H=47.2m) -->
+        <collision name="bldg_1_White_Plaza_col">
+          <pose>-139.00 -30.50 23.61 0 0 0</pose>
+          <geometry><box><size>38.00 39.00 47.22</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_1_White_Plaza_vis">
+          <pose>-139.00 -30.50 23.61 0 0 0</pose>
+          <geometry><box><size>38.00 39.00 47.22</size></box></geometry>
+          <material>
+            <ambient>0.680 0.680 0.700 1</ambient>
+            <diffuse>0.860 0.860 0.880 1</diffuse>
+            <specular>0.150 0.150 0.150 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_1_White_Plaza_roof">
+          <pose>-139.00 -30.50 48.97 0 0 0</pose>
+          <geometry><box><size>20.90 21.45 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_2_White_Plaza (H=21.0m) -->
+        <collision name="bldg_2_White_Plaza_col">
+          <pose>-149.25 20.00 10.48 0 0 0</pose>
+          <geometry><box><size>17.50 18.00 20.97</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_2_White_Plaza_vis">
+          <pose>-149.25 20.00 10.48 0 0 0</pose>
+          <geometry><box><size>17.50 18.00 20.97</size></box></geometry>
+          <material>
+            <ambient>0.680 0.680 0.700 1</ambient>
+            <diffuse>0.860 0.860 0.880 1</diffuse>
+            <specular>0.150 0.150 0.150 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_3_Bronze_Glass (H=21.8m) -->
+        <collision name="bldg_3_Bronze_Glass_col">
+          <pose>-149.25 41.00 10.90 0 0 0</pose>
+          <geometry><box><size>17.50 18.00 21.79</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_3_Bronze_Glass_vis">
+          <pose>-149.25 41.00 10.90 0 0 0</pose>
+          <geometry><box><size>17.50 18.00 21.79</size></box></geometry>
+          <material>
+            <ambient>0.360 0.280 0.200 1</ambient>
+            <diffuse>0.540 0.420 0.300 1</diffuse>
+            <specular>0.400 0.400 0.400 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_4_Bronze_Glass (H=20.8m) -->
+        <collision name="bldg_4_Bronze_Glass_col">
+          <pose>-128.75 20.00 10.38 0 0 0</pose>
+          <geometry><box><size>17.50 18.00 20.75</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_4_Bronze_Glass_vis">
+          <pose>-128.75 20.00 10.38 0 0 0</pose>
+          <geometry><box><size>17.50 18.00 20.75</size></box></geometry>
+          <material>
+            <ambient>0.360 0.280 0.200 1</ambient>
+            <diffuse>0.540 0.420 0.300 1</diffuse>
+            <specular>0.400 0.400 0.400 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_5_Sandstone (H=20.8m) -->
+        <collision name="bldg_5_Sandstone_col">
+          <pose>-128.75 41.00 10.41 0 0 0</pose>
+          <geometry><box><size>17.50 18.00 20.82</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_5_Sandstone_vis">
+          <pose>-128.75 41.00 10.41 0 0 0</pose>
+          <geometry><box><size>17.50 18.00 20.82</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_6_Glass_Tower (H=18.1m) -->
+        <collision name="bldg_6_Glass_Tower_col">
+          <pose>-149.25 90.00 9.03 0 0 0</pose>
+          <geometry><box><size>17.50 40.00 18.06</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_6_Glass_Tower_vis">
+          <pose>-149.25 90.00 9.03 0 0 0</pose>
+          <geometry><box><size>17.50 40.00 18.06</size></box></geometry>
+          <material>
+            <ambient>0.160 0.280 0.420 1</ambient>
+            <diffuse>0.280 0.480 0.680 1</diffuse>
+            <specular>0.500 0.500 0.600 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_7_Sandstone (H=37.6m) -->
+        <collision name="bldg_7_Sandstone_col">
+          <pose>-128.75 90.00 18.80 0 0 0</pose>
+          <geometry><box><size>17.50 40.00 37.60</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_7_Sandstone_vis">
+          <pose>-128.75 90.00 18.80 0 0 0</pose>
+          <geometry><box><size>17.50 40.00 37.60</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_8_Steel_Office (H=19.5m) -->
+        <collision name="bldg_8_Steel_Office_col">
+          <pose>-90.75 -100.75 9.76 0 0 0</pose>
+          <geometry><box><size>18.50 18.50 19.51</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_8_Steel_Office_vis">
+          <pose>-90.75 -100.75 9.76 0 0 0</pose>
+          <geometry><box><size>18.50 18.50 19.51</size></box></geometry>
+          <material>
+            <ambient>0.200 0.200 0.240 1</ambient>
+            <diffuse>0.320 0.320 0.380 1</diffuse>
+            <specular>0.300 0.300 0.300 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_9_Red_Brick (H=15.6m) -->
+        <collision name="bldg_9_Red_Brick_col">
+          <pose>-90.75 -79.25 7.78 0 0 0</pose>
+          <geometry><box><size>18.50 18.50 15.56</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_9_Red_Brick_vis">
+          <pose>-90.75 -79.25 7.78 0 0 0</pose>
+          <geometry><box><size>18.50 18.50 15.56</size></box></geometry>
+          <material>
+            <ambient>0.440 0.220 0.180 1</ambient>
+            <diffuse>0.650 0.330 0.270 1</diffuse>
+            <specular>0.050 0.050 0.050 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_10_Red_Brick (H=23.7m) -->
+        <collision name="bldg_10_Red_Brick_col">
+          <pose>-69.25 -100.75 11.86 0 0 0</pose>
+          <geometry><box><size>18.50 18.50 23.72</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_10_Red_Brick_vis">
+          <pose>-69.25 -100.75 11.86 0 0 0</pose>
+          <geometry><box><size>18.50 18.50 23.72</size></box></geometry>
+          <material>
+            <ambient>0.440 0.220 0.180 1</ambient>
+            <diffuse>0.650 0.330 0.270 1</diffuse>
+            <specular>0.050 0.050 0.050 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_11_Charcoal (H=21.3m) -->
+        <collision name="bldg_11_Charcoal_col">
+          <pose>-69.25 -79.25 10.64 0 0 0</pose>
+          <geometry><box><size>18.50 18.50 21.27</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_11_Charcoal_vis">
+          <pose>-69.25 -79.25 10.64 0 0 0</pose>
+          <geometry><box><size>18.50 18.50 21.27</size></box></geometry>
+          <material>
+            <ambient>0.140 0.140 0.170 1</ambient>
+            <diffuse>0.240 0.240 0.280 1</diffuse>
+            <specular>0.200 0.200 0.200 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_12_Glass_Tower (H=43.4m) -->
+        <collision name="bldg_12_Glass_Tower_col">
+          <pose>-80.00 -30.50 21.68 0 0 0</pose>
+          <geometry><box><size>40.00 39.00 43.35</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_12_Glass_Tower_vis">
+          <pose>-80.00 -30.50 21.68 0 0 0</pose>
+          <geometry><box><size>40.00 39.00 43.35</size></box></geometry>
+          <material>
+            <ambient>0.160 0.280 0.420 1</ambient>
+            <diffuse>0.280 0.480 0.680 1</diffuse>
+            <specular>0.500 0.500 0.600 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_12_Glass_Tower_roof">
+          <pose>-80.00 -30.50 45.10 0 0 0</pose>
+          <geometry><box><size>22.00 21.45 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_13_Steel_Office (H=22.3m) -->
+        <collision name="bldg_13_Steel_Office_col">
+          <pose>-80.00 20.00 11.16 0 0 0</pose>
+          <geometry><box><size>40.00 18.00 22.33</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_13_Steel_Office_vis">
+          <pose>-80.00 20.00 11.16 0 0 0</pose>
+          <geometry><box><size>40.00 18.00 22.33</size></box></geometry>
+          <material>
+            <ambient>0.200 0.200 0.240 1</ambient>
+            <diffuse>0.320 0.320 0.380 1</diffuse>
+            <specular>0.300 0.300 0.300 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_13_Steel_Office_roof">
+          <pose>-80.00 20.00 24.08 0 0 0</pose>
+          <geometry><box><size>22.00 9.90 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_14_White_Plaza (H=31.5m) -->
+        <collision name="bldg_14_White_Plaza_col">
+          <pose>-80.00 41.00 15.74 0 0 0</pose>
+          <geometry><box><size>40.00 18.00 31.49</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_14_White_Plaza_vis">
+          <pose>-80.00 41.00 15.74 0 0 0</pose>
+          <geometry><box><size>40.00 18.00 31.49</size></box></geometry>
+          <material>
+            <ambient>0.680 0.680 0.700 1</ambient>
+            <diffuse>0.860 0.860 0.880 1</diffuse>
+            <specular>0.150 0.150 0.150 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_14_White_Plaza_roof">
+          <pose>-80.00 41.00 33.24 0 0 0</pose>
+          <geometry><box><size>22.00 9.90 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_15_Sandstone (H=24.0m) -->
+        <collision name="bldg_15_Sandstone_col">
+          <pose>-80.00 79.25 12.00 0 0 0</pose>
+          <geometry><box><size>40.00 18.50 24.00</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_15_Sandstone_vis">
+          <pose>-80.00 79.25 12.00 0 0 0</pose>
+          <geometry><box><size>40.00 18.50 24.00</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_16_White_Plaza (H=35.6m) -->
+        <collision name="bldg_16_White_Plaza_col">
+          <pose>-80.00 100.75 17.80 0 0 0</pose>
+          <geometry><box><size>40.00 18.50 35.60</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_16_White_Plaza_vis">
+          <pose>-80.00 100.75 17.80 0 0 0</pose>
+          <geometry><box><size>40.00 18.50 35.60</size></box></geometry>
+          <material>
+            <ambient>0.680 0.680 0.700 1</ambient>
+            <diffuse>0.860 0.860 0.880 1</diffuse>
+            <specular>0.150 0.150 0.150 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_16_White_Plaza_roof">
+          <pose>-80.00 100.75 37.35 0 0 0</pose>
+          <geometry><box><size>22.00 10.18 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_17_Bronze_Glass (H=36.2m) -->
+        <collision name="bldg_17_Bronze_Glass_col">
+          <pose>-15.00 -90.00 18.11 0 0 0</pose>
+          <geometry><box><size>50.00 40.00 36.21</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_17_Bronze_Glass_vis">
+          <pose>-15.00 -90.00 18.11 0 0 0</pose>
+          <geometry><box><size>50.00 40.00 36.21</size></box></geometry>
+          <material>
+            <ambient>0.360 0.280 0.200 1</ambient>
+            <diffuse>0.540 0.420 0.300 1</diffuse>
+            <specular>0.400 0.400 0.400 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_17_Bronze_Glass_roof">
+          <pose>-15.00 -90.00 37.96 0 0 0</pose>
+          <geometry><box><size>27.50 22.00 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_18_White_Plaza (H=15.6m) -->
+        <collision name="bldg_18_White_Plaza_col">
+          <pose>-28.25 -41.00 7.79 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 15.57</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_18_White_Plaza_vis">
+          <pose>-28.25 -41.00 7.79 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 15.57</size></box></geometry>
+          <material>
+            <ambient>0.680 0.680 0.700 1</ambient>
+            <diffuse>0.860 0.860 0.880 1</diffuse>
+            <specular>0.150 0.150 0.150 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_19_Sandstone (H=13.6m) -->
+        <collision name="bldg_19_Sandstone_col">
+          <pose>-28.25 -20.00 6.81 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 13.62</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_19_Sandstone_vis">
+          <pose>-28.25 -20.00 6.81 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 13.62</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_20_Sandstone (H=17.9m) -->
+        <collision name="bldg_20_Sandstone_col">
+          <pose>-1.75 -41.00 8.95 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 17.90</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_20_Sandstone_vis">
+          <pose>-1.75 -41.00 8.95 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 17.90</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_21_Bronze_Glass (H=17.2m) -->
+        <collision name="bldg_21_Bronze_Glass_col">
+          <pose>-1.75 -20.00 8.59 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 17.18</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_21_Bronze_Glass_vis">
+          <pose>-1.75 -20.00 8.59 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 17.18</size></box></geometry>
+          <material>
+            <ambient>0.360 0.280 0.200 1</ambient>
+            <diffuse>0.540 0.420 0.300 1</diffuse>
+            <specular>0.400 0.400 0.400 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_22_Bronze_Glass (H=39.8m) -->
+        <collision name="bldg_22_Bronze_Glass_col">
+          <pose>-15.00 30.50 19.91 0 0 0</pose>
+          <geometry><box><size>50.00 39.00 39.81</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_22_Bronze_Glass_vis">
+          <pose>-15.00 30.50 19.91 0 0 0</pose>
+          <geometry><box><size>50.00 39.00 39.81</size></box></geometry>
+          <material>
+            <ambient>0.360 0.280 0.200 1</ambient>
+            <diffuse>0.540 0.420 0.300 1</diffuse>
+            <specular>0.400 0.400 0.400 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_22_Bronze_Glass_roof">
+          <pose>-15.00 30.50 41.56 0 0 0</pose>
+          <geometry><box><size>27.50 21.45 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_23_Charcoal (H=37.6m) -->
+        <collision name="bldg_23_Charcoal_col">
+          <pose>-28.25 90.00 18.82 0 0 0</pose>
+          <geometry><box><size>23.50 40.00 37.64</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_23_Charcoal_vis">
+          <pose>-28.25 90.00 18.82 0 0 0</pose>
+          <geometry><box><size>23.50 40.00 37.64</size></box></geometry>
+          <material>
+            <ambient>0.140 0.140 0.170 1</ambient>
+            <diffuse>0.240 0.240 0.280 1</diffuse>
+            <specular>0.200 0.200 0.200 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_23_Charcoal_roof">
+          <pose>-28.25 90.00 39.39 0 0 0</pose>
+          <geometry><box><size>12.93 22.00 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_24_Charcoal (H=34.1m) -->
+        <collision name="bldg_24_Charcoal_col">
+          <pose>-1.75 90.00 17.05 0 0 0</pose>
+          <geometry><box><size>23.50 40.00 34.09</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_24_Charcoal_vis">
+          <pose>-1.75 90.00 17.05 0 0 0</pose>
+          <geometry><box><size>23.50 40.00 34.09</size></box></geometry>
+          <material>
+            <ambient>0.140 0.140 0.170 1</ambient>
+            <diffuse>0.240 0.240 0.280 1</diffuse>
+            <specular>0.200 0.200 0.200 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_24_Charcoal_roof">
+          <pose>-1.75 90.00 35.84 0 0 0</pose>
+          <geometry><box><size>12.93 22.00 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_25_Steel_Office (H=12.0m) -->
+        <collision name="bldg_25_Steel_Office_col">
+          <pose>41.75 -100.75 6.00 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 11.99</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_25_Steel_Office_vis">
+          <pose>41.75 -100.75 6.00 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 11.99</size></box></geometry>
+          <material>
+            <ambient>0.200 0.200 0.240 1</ambient>
+            <diffuse>0.320 0.320 0.380 1</diffuse>
+            <specular>0.300 0.300 0.300 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_26_Glass_Tower (H=21.9m) -->
+        <collision name="bldg_26_Glass_Tower_col">
+          <pose>41.75 -79.25 10.95 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 21.89</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_26_Glass_Tower_vis">
+          <pose>41.75 -79.25 10.95 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 21.89</size></box></geometry>
+          <material>
+            <ambient>0.160 0.280 0.420 1</ambient>
+            <diffuse>0.280 0.480 0.680 1</diffuse>
+            <specular>0.500 0.500 0.600 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_27_Sandstone (H=18.8m) -->
+        <collision name="bldg_27_Sandstone_col">
+          <pose>68.25 -100.75 9.39 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 18.77</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_27_Sandstone_vis">
+          <pose>68.25 -100.75 9.39 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 18.77</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_28_Charcoal (H=19.4m) -->
+        <collision name="bldg_28_Charcoal_col">
+          <pose>68.25 -79.25 9.72 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 19.44</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_28_Charcoal_vis">
+          <pose>68.25 -79.25 9.72 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 19.44</size></box></geometry>
+          <material>
+            <ambient>0.140 0.140 0.170 1</ambient>
+            <diffuse>0.240 0.240 0.280 1</diffuse>
+            <specular>0.200 0.200 0.200 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_29_Charcoal (H=28.3m) -->
+        <collision name="bldg_29_Charcoal_col">
+          <pose>55.00 -41.00 14.16 0 0 0</pose>
+          <geometry><box><size>50.00 18.00 28.32</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_29_Charcoal_vis">
+          <pose>55.00 -41.00 14.16 0 0 0</pose>
+          <geometry><box><size>50.00 18.00 28.32</size></box></geometry>
+          <material>
+            <ambient>0.140 0.140 0.170 1</ambient>
+            <diffuse>0.240 0.240 0.280 1</diffuse>
+            <specular>0.200 0.200 0.200 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_29_Charcoal_roof">
+          <pose>55.00 -41.00 30.07 0 0 0</pose>
+          <geometry><box><size>27.50 9.90 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_30_Charcoal (H=28.1m) -->
+        <collision name="bldg_30_Charcoal_col">
+          <pose>55.00 -20.00 14.03 0 0 0</pose>
+          <geometry><box><size>50.00 18.00 28.06</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_30_Charcoal_vis">
+          <pose>55.00 -20.00 14.03 0 0 0</pose>
+          <geometry><box><size>50.00 18.00 28.06</size></box></geometry>
+          <material>
+            <ambient>0.140 0.140 0.170 1</ambient>
+            <diffuse>0.240 0.240 0.280 1</diffuse>
+            <specular>0.200 0.200 0.200 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_30_Charcoal_roof">
+          <pose>55.00 -20.00 29.81 0 0 0</pose>
+          <geometry><box><size>27.50 9.90 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_31_Sandstone (H=21.3m) -->
+        <collision name="bldg_31_Sandstone_col">
+          <pose>41.75 20.00 10.63 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 21.27</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_31_Sandstone_vis">
+          <pose>41.75 20.00 10.63 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 21.27</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_32_Red_Brick (H=16.1m) -->
+        <collision name="bldg_32_Red_Brick_col">
+          <pose>41.75 41.00 8.03 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 16.06</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_32_Red_Brick_vis">
+          <pose>41.75 41.00 8.03 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 16.06</size></box></geometry>
+          <material>
+            <ambient>0.440 0.220 0.180 1</ambient>
+            <diffuse>0.650 0.330 0.270 1</diffuse>
+            <specular>0.050 0.050 0.050 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_33_Glass_Tower (H=21.6m) -->
+        <collision name="bldg_33_Glass_Tower_col">
+          <pose>68.25 20.00 10.82 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 21.65</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_33_Glass_Tower_vis">
+          <pose>68.25 20.00 10.82 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 21.65</size></box></geometry>
+          <material>
+            <ambient>0.160 0.280 0.420 1</ambient>
+            <diffuse>0.280 0.480 0.680 1</diffuse>
+            <specular>0.500 0.500 0.600 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_34_Charcoal (H=10.5m) -->
+        <collision name="bldg_34_Charcoal_col">
+          <pose>68.25 41.00 5.23 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 10.46</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_34_Charcoal_vis">
+          <pose>68.25 41.00 5.23 0 0 0</pose>
+          <geometry><box><size>23.50 18.00 10.46</size></box></geometry>
+          <material>
+            <ambient>0.140 0.140 0.170 1</ambient>
+            <diffuse>0.240 0.240 0.280 1</diffuse>
+            <specular>0.200 0.200 0.200 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_35_Sandstone (H=21.2m) -->
+        <collision name="bldg_35_Sandstone_col">
+          <pose>41.75 79.25 10.62 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 21.25</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_35_Sandstone_vis">
+          <pose>41.75 79.25 10.62 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 21.25</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_36_Steel_Office (H=15.0m) -->
+        <collision name="bldg_36_Steel_Office_col">
+          <pose>41.75 100.75 7.52 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 15.04</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_36_Steel_Office_vis">
+          <pose>41.75 100.75 7.52 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 15.04</size></box></geometry>
+          <material>
+            <ambient>0.200 0.200 0.240 1</ambient>
+            <diffuse>0.320 0.320 0.380 1</diffuse>
+            <specular>0.300 0.300 0.300 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_37_Sandstone (H=13.6m) -->
+        <collision name="bldg_37_Sandstone_col">
+          <pose>68.25 79.25 6.82 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 13.64</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_37_Sandstone_vis">
+          <pose>68.25 79.25 6.82 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 13.64</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_38_Bronze_Glass (H=16.5m) -->
+        <collision name="bldg_38_Bronze_Glass_col">
+          <pose>68.25 100.75 8.27 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 16.53</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_38_Bronze_Glass_vis">
+          <pose>68.25 100.75 8.27 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 16.53</size></box></geometry>
+          <material>
+            <ambient>0.360 0.280 0.200 1</ambient>
+            <diffuse>0.540 0.420 0.300 1</diffuse>
+            <specular>0.400 0.400 0.400 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_39_White_Plaza (H=21.3m) -->
+        <collision name="bldg_39_White_Plaza_col">
+          <pose>111.75 -100.75 10.66 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 21.31</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_39_White_Plaza_vis">
+          <pose>111.75 -100.75 10.66 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 21.31</size></box></geometry>
+          <material>
+            <ambient>0.680 0.680 0.700 1</ambient>
+            <diffuse>0.860 0.860 0.880 1</diffuse>
+            <specular>0.150 0.150 0.150 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_40_Glass_Tower (H=19.3m) -->
+        <collision name="bldg_40_Glass_Tower_col">
+          <pose>111.75 -79.25 9.65 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 19.29</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_40_Glass_Tower_vis">
+          <pose>111.75 -79.25 9.65 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 19.29</size></box></geometry>
+          <material>
+            <ambient>0.160 0.280 0.420 1</ambient>
+            <diffuse>0.280 0.480 0.680 1</diffuse>
+            <specular>0.500 0.500 0.600 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_41_Red_Brick (H=21.6m) -->
+        <collision name="bldg_41_Red_Brick_col">
+          <pose>138.25 -100.75 10.82 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 21.64</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_41_Red_Brick_vis">
+          <pose>138.25 -100.75 10.82 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 21.64</size></box></geometry>
+          <material>
+            <ambient>0.440 0.220 0.180 1</ambient>
+            <diffuse>0.650 0.330 0.270 1</diffuse>
+            <specular>0.050 0.050 0.050 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_42_Bronze_Glass (H=16.4m) -->
+        <collision name="bldg_42_Bronze_Glass_col">
+          <pose>138.25 -79.25 8.20 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 16.41</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_42_Bronze_Glass_vis">
+          <pose>138.25 -79.25 8.20 0 0 0</pose>
+          <geometry><box><size>23.50 18.50 16.41</size></box></geometry>
+          <material>
+            <ambient>0.360 0.280 0.200 1</ambient>
+            <diffuse>0.540 0.420 0.300 1</diffuse>
+            <specular>0.400 0.400 0.400 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_43_Charcoal (H=36.5m) -->
+        <collision name="bldg_43_Charcoal_col">
+          <pose>125.00 -30.50 18.26 0 0 0</pose>
+          <geometry><box><size>50.00 39.00 36.52</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_43_Charcoal_vis">
+          <pose>125.00 -30.50 18.26 0 0 0</pose>
+          <geometry><box><size>50.00 39.00 36.52</size></box></geometry>
+          <material>
+            <ambient>0.140 0.140 0.170 1</ambient>
+            <diffuse>0.240 0.240 0.280 1</diffuse>
+            <specular>0.200 0.200 0.200 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_43_Charcoal_roof">
+          <pose>125.00 -30.50 38.27 0 0 0</pose>
+          <geometry><box><size>27.50 21.45 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_44_Steel_Office (H=26.0m) -->
+        <collision name="bldg_44_Steel_Office_col">
+          <pose>125.00 20.00 12.98 0 0 0</pose>
+          <geometry><box><size>50.00 18.00 25.96</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_44_Steel_Office_vis">
+          <pose>125.00 20.00 12.98 0 0 0</pose>
+          <geometry><box><size>50.00 18.00 25.96</size></box></geometry>
+          <material>
+            <ambient>0.200 0.200 0.240 1</ambient>
+            <diffuse>0.320 0.320 0.380 1</diffuse>
+            <specular>0.300 0.300 0.300 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_44_Steel_Office_roof">
+          <pose>125.00 20.00 27.71 0 0 0</pose>
+          <geometry><box><size>27.50 9.90 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_45_Sandstone (H=34.5m) -->
+        <collision name="bldg_45_Sandstone_col">
+          <pose>125.00 41.00 17.27 0 0 0</pose>
+          <geometry><box><size>50.00 18.00 34.53</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_45_Sandstone_vis">
+          <pose>125.00 41.00 17.27 0 0 0</pose>
+          <geometry><box><size>50.00 18.00 34.53</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_45_Sandstone_roof">
+          <pose>125.00 41.00 36.28 0 0 0</pose>
+          <geometry><box><size>27.50 9.90 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_46_Red_Brick (H=35.9m) -->
+        <collision name="bldg_46_Red_Brick_col">
+          <pose>125.00 79.25 17.94 0 0 0</pose>
+          <geometry><box><size>50.00 18.50 35.87</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_46_Red_Brick_vis">
+          <pose>125.00 79.25 17.94 0 0 0</pose>
+          <geometry><box><size>50.00 18.50 35.87</size></box></geometry>
+          <material>
+            <ambient>0.440 0.220 0.180 1</ambient>
+            <diffuse>0.650 0.330 0.270 1</diffuse>
+            <specular>0.050 0.050 0.050 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_47_Sandstone (H=32.4m) -->
+        <collision name="bldg_47_Sandstone_col">
+          <pose>125.00 100.75 16.22 0 0 0</pose>
+          <geometry><box><size>50.00 18.50 32.45</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_47_Sandstone_vis">
+          <pose>125.00 100.75 16.22 0 0 0</pose>
+          <geometry><box><size>50.00 18.50 32.45</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_48_Sandstone (H=28.2m) -->
+        <collision name="bldg_48_Sandstone_col">
+          <pose>190.00 -90.00 14.11 0 0 0</pose>
+          <geometry><box><size>40.00 40.00 28.21</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_48_Sandstone_vis">
+          <pose>190.00 -90.00 14.11 0 0 0</pose>
+          <geometry><box><size>40.00 40.00 28.21</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_48_Sandstone_roof">
+          <pose>190.00 -90.00 29.96 0 0 0</pose>
+          <geometry><box><size>22.00 22.00 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_49_Steel_Office (H=40.6m) -->
+        <collision name="bldg_49_Steel_Office_col">
+          <pose>190.00 -30.50 20.32 0 0 0</pose>
+          <geometry><box><size>40.00 39.00 40.64</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_49_Steel_Office_vis">
+          <pose>190.00 -30.50 20.32 0 0 0</pose>
+          <geometry><box><size>40.00 39.00 40.64</size></box></geometry>
+          <material>
+            <ambient>0.200 0.200 0.240 1</ambient>
+            <diffuse>0.320 0.320 0.380 1</diffuse>
+            <specular>0.300 0.300 0.300 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_49_Steel_Office_roof">
+          <pose>190.00 -30.50 42.39 0 0 0</pose>
+          <geometry><box><size>22.00 21.45 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_50_Glass_Tower (H=20.9m) -->
+        <collision name="bldg_50_Glass_Tower_col">
+          <pose>179.25 30.50 10.45 0 0 0</pose>
+          <geometry><box><size>18.50 39.00 20.90</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_50_Glass_Tower_vis">
+          <pose>179.25 30.50 10.45 0 0 0</pose>
+          <geometry><box><size>18.50 39.00 20.90</size></box></geometry>
+          <material>
+            <ambient>0.160 0.280 0.420 1</ambient>
+            <diffuse>0.280 0.480 0.680 1</diffuse>
+            <specular>0.500 0.500 0.600 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_50_Glass_Tower_roof">
+          <pose>179.25 30.50 22.65 0 0 0</pose>
+          <geometry><box><size>10.18 21.45 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_51_Charcoal (H=41.0m) -->
+        <collision name="bldg_51_Charcoal_col">
+          <pose>200.75 30.50 20.48 0 0 0</pose>
+          <geometry><box><size>18.50 39.00 40.95</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_51_Charcoal_vis">
+          <pose>200.75 30.50 20.48 0 0 0</pose>
+          <geometry><box><size>18.50 39.00 40.95</size></box></geometry>
+          <material>
+            <ambient>0.140 0.140 0.170 1</ambient>
+            <diffuse>0.240 0.240 0.280 1</diffuse>
+            <specular>0.200 0.200 0.200 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_51_Charcoal_roof">
+          <pose>200.75 30.50 42.70 0 0 0</pose>
+          <geometry><box><size>10.18 21.45 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_52_Red_Brick (H=19.4m) -->
+        <collision name="bldg_52_Red_Brick_col">
+          <pose>190.00 79.25 9.70 0 0 0</pose>
+          <geometry><box><size>40.00 18.50 19.40</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_52_Red_Brick_vis">
+          <pose>190.00 79.25 9.70 0 0 0</pose>
+          <geometry><box><size>40.00 18.50 19.40</size></box></geometry>
+          <material>
+            <ambient>0.440 0.220 0.180 1</ambient>
+            <diffuse>0.650 0.330 0.270 1</diffuse>
+            <specular>0.050 0.050 0.050 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_52_Red_Brick_roof">
+          <pose>190.00 79.25 21.15 0 0 0</pose>
+          <geometry><box><size>22.00 10.18 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_53_Bronze_Glass (H=28.6m) -->
+        <collision name="bldg_53_Bronze_Glass_col">
+          <pose>190.00 100.75 14.32 0 0 0</pose>
+          <geometry><box><size>40.00 18.50 28.63</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_53_Bronze_Glass_vis">
+          <pose>190.00 100.75 14.32 0 0 0</pose>
+          <geometry><box><size>40.00 18.50 28.63</size></box></geometry>
+          <material>
+            <ambient>0.360 0.280 0.200 1</ambient>
+            <diffuse>0.540 0.420 0.300 1</diffuse>
+            <specular>0.400 0.400 0.400 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_53_Bronze_Glass_roof">
+          <pose>190.00 100.75 30.38 0 0 0</pose>
+          <geometry><box><size>22.00 10.18 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_54_Sandstone (H=31.1m) -->
+        <collision name="bldg_54_Sandstone_col">
+          <pose>236.25 -90.00 15.55 0 0 0</pose>
+          <geometry><box><size>12.50 40.00 31.10</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_54_Sandstone_vis">
+          <pose>236.25 -90.00 15.55 0 0 0</pose>
+          <geometry><box><size>12.50 40.00 31.10</size></box></geometry>
+          <material>
+            <ambient>0.540 0.490 0.410 1</ambient>
+            <diffuse>0.750 0.680 0.560 1</diffuse>
+            <specular>0.080 0.080 0.080 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_55_Charcoal (H=41.0m) -->
+        <collision name="bldg_55_Charcoal_col">
+          <pose>251.75 -90.00 20.50 0 0 0</pose>
+          <geometry><box><size>12.50 40.00 41.00</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_55_Charcoal_vis">
+          <pose>251.75 -90.00 20.50 0 0 0</pose>
+          <geometry><box><size>12.50 40.00 41.00</size></box></geometry>
+          <material>
+            <ambient>0.140 0.140 0.170 1</ambient>
+            <diffuse>0.240 0.240 0.280 1</diffuse>
+            <specular>0.200 0.200 0.200 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_56_Steel_Office (H=36.0m) -->
+        <collision name="bldg_56_Steel_Office_col">
+          <pose>244.00 -30.50 18.01 0 0 0</pose>
+          <geometry><box><size>28.00 39.00 36.03</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_56_Steel_Office_vis">
+          <pose>244.00 -30.50 18.01 0 0 0</pose>
+          <geometry><box><size>28.00 39.00 36.03</size></box></geometry>
+          <material>
+            <ambient>0.200 0.200 0.240 1</ambient>
+            <diffuse>0.320 0.320 0.380 1</diffuse>
+            <specular>0.300 0.300 0.300 1</specular>
+          </material>
+        </visual>
+        <visual name="bldg_56_Steel_Office_roof">
+          <pose>244.00 -30.50 37.78 0 0 0</pose>
+          <geometry><box><size>15.40 21.45 3.50</size></box></geometry>
+          <material>
+            <ambient>0.25 0.25 0.28 1</ambient>
+            <diffuse>0.35 0.35 0.38 1</diffuse>
+          </material>
+        </visual>
+        <!-- bldg_57_White_Plaza (H=36.8m) -->
+        <collision name="bldg_57_White_Plaza_col">
+          <pose>236.25 30.50 18.40 0 0 0</pose>
+          <geometry><box><size>12.50 39.00 36.80</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_57_White_Plaza_vis">
+          <pose>236.25 30.50 18.40 0 0 0</pose>
+          <geometry><box><size>12.50 39.00 36.80</size></box></geometry>
+          <material>
+            <ambient>0.680 0.680 0.700 1</ambient>
+            <diffuse>0.860 0.860 0.880 1</diffuse>
+            <specular>0.150 0.150 0.150 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_58_Bronze_Glass (H=27.9m) -->
+        <collision name="bldg_58_Bronze_Glass_col">
+          <pose>251.75 30.50 13.94 0 0 0</pose>
+          <geometry><box><size>12.50 39.00 27.89</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_58_Bronze_Glass_vis">
+          <pose>251.75 30.50 13.94 0 0 0</pose>
+          <geometry><box><size>12.50 39.00 27.89</size></box></geometry>
+          <material>
+            <ambient>0.360 0.280 0.200 1</ambient>
+            <diffuse>0.540 0.420 0.300 1</diffuse>
+            <specular>0.400 0.400 0.400 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_59_Glass_Tower (H=27.0m) -->
+        <collision name="bldg_59_Glass_Tower_col">
+          <pose>236.25 90.00 13.51 0 0 0</pose>
+          <geometry><box><size>12.50 40.00 27.02</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_59_Glass_Tower_vis">
+          <pose>236.25 90.00 13.51 0 0 0</pose>
+          <geometry><box><size>12.50 40.00 27.02</size></box></geometry>
+          <material>
+            <ambient>0.160 0.280 0.420 1</ambient>
+            <diffuse>0.280 0.480 0.680 1</diffuse>
+            <specular>0.500 0.500 0.600 1</specular>
+          </material>
+        </visual>
+        <!-- bldg_60_Bronze_Glass (H=19.8m) -->
+        <collision name="bldg_60_Bronze_Glass_col">
+          <pose>251.75 90.00 9.88 0 0 0</pose>
+          <geometry><box><size>12.50 40.00 19.76</size></box></geometry>
+          <surface>
+            <friction><ode><mu>1.2</mu><mu2>1.2</mu2></ode></friction>
+            <contact><ode><kp>1e8</kp><kd>1e4</kd></ode></contact>
+          </surface>
+        </collision>
+        <visual name="bldg_60_Bronze_Glass_vis">
+          <pose>251.75 90.00 9.88 0 0 0</pose>
+          <geometry><box><size>12.50 40.00 19.76</size></box></geometry>
+          <material>
+            <ambient>0.360 0.280 0.200 1</ambient>
+            <diffuse>0.540 0.420 0.300 1</diffuse>
+            <specular>0.400 0.400 0.400 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- CAR MODEL -->
+    <include>
+      <uri>model://my_car</uri>
+      <name>my_car</name>
+      <pose>0 0 0.52 0 0 0</pose>
+    </include>
+
+  </world>
+</sdf>
